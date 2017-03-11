@@ -19,11 +19,11 @@ public class plant {
 	public static void main(String[] args)throws IOException, InterruptedException{
 		
 	ByteArrayOutputStream png = new ByteArrayOutputStream();
-	String plantUmlSource="@startuml\ntestdot\n";
+	String plantUmlSource="@startuml\n";
 
-    //plantUmlSource+="classA--|>classB: sample\n";
+      plantUmlSource+="classA--|>classB\n";
 
-    //plantUmlSource+="classc--|>classD: sample\n";
+      plantUmlSource+="classc--|>classB\n";
 
     plantUmlSource+="@enduml";
 
