@@ -23,7 +23,7 @@ public class plant {
 
       plantUmlSource+="classA--|>classB\n";
 
-      plantUmlSource+="classc--|>classB\n";
+      plantUmlSource+="classC--|>classB\n";
 
     plantUmlSource+="@enduml";
 
