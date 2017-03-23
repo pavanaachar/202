@@ -1,0 +1,62 @@
+package testing;
+import java.io.File;
+import java.io.FileInputStream;
+
+import japa.parser.JavaParser;
+import japa.parser.ast.CompilationUnit;
+import japa.parser.ast.body.ClassOrInterfaceDeclaration;
+import japa.parser.ast.expr.MethodCallExpr;
+import japa.parser.ast.visitor.VoidVisitorAdapter;
+
+public class test {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		File file = new File(path);
+
+		FileInputStream file_in = new FileInputStream(file);
+
+		CompilationUnit compile_unit = null;
+
+		try{
+			compile_unit = JavaParser.parse(file_in);
+			new MethodVisitor().visit(compile_unit,null);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		finally{
+			file_in.close();
+		}
+	}
+
+}
+
+
+
+
+
+
+class MethodVisitor extends VoidVisitorAdapter<Object> {
+		public void visit(ClassOrInterfaceDeclaration n, Object arg) {
+
+			super.visit(n, arg);
+			System.out.print(" * "+n.getName()+"\n");
+
+		}
+
+		public void visit(MethodCallExpr n, Object arg) {
+
+			super.visit(n, arg);
+			System.out.print("\n" + n+"\n");
+
+		}
+
+
+
+ 
+
+
+	}
+
+
