@@ -26,7 +26,7 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 		}
 		
 		
-		if(n.isInterface())
+		else
 		{
 			this.InterfaceName = n.getName().toString();
 			this.IsInterface = true;

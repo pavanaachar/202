@@ -3,16 +3,13 @@ package JavaToUML;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 
 public class Parser {
 
 	private static ArrayList<File> JavaFiles = new ArrayList<File>();
-	
-	private static ArrayList<String> ClassNames = new ArrayList<String>();
-	
-	private static ArrayList<String> InterfaceNames = new ArrayList<String>();
 
 	public static void main(String[] args) throws Exception{
 		String path = "C:\\Users\\Pavana\\workspace1\\text\\src\\text";
@@ -32,11 +29,11 @@ public class Parser {
 
 		for(int i=0; i<JavaFiles.size();i++){
 			File file = new File(JavaFiles.get(i).getAbsolutePath());
-			FileInputStream file_in = null;
+			FileInputStream file_in = new FileInputStream(file);
 			CompilationUnit compile_unit = null;
 			try{
-				file_in = new FileInputStream(file);
-				compile_unit = JavaParser.parse(file_in);				
+				compile_unit = JavaParser.parse(file_in);
+				new ClassOrInterfaceVisitor().visit(compile_unit,null);
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -44,19 +41,7 @@ public class Parser {
 			finally{
 				file_in.close();
 			}
-			ClassOrInterfaceVisitor class_interface_visitor = new ClassOrInterfaceVisitor();
-			class_interface_visitor.visit(compile_unit,null);
-			if(class_interface_visitor.IsClass()){
-				ClassNames.add(class_interface_visitor.getClassName());
-			}
-			if(class_interface_visitor.IsInterface()){
-				InterfaceNames.add(class_interface_visitor.getInterfaceName());
-			}
-			
 		}
-	
-		System.out.print("Classes:"+ClassNames+"\n");
-		System.out.print("Interfaces:"+InterfaceNames+"\n");
 	}
 }
 

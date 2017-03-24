@@ -3,6 +3,7 @@ package JavaToUML;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 
@@ -32,11 +33,11 @@ public class Parser {
 
 		for(int i=0; i<JavaFiles.size();i++){
 			File file = new File(JavaFiles.get(i).getAbsolutePath());
-			FileInputStream file_in = null;
+			FileInputStream file_in = new FileInputStream(file);
 			CompilationUnit compile_unit = null;
 			try{
-				file_in = new FileInputStream(file);
-				compile_unit = JavaParser.parse(file_in);				
+				compile_unit = JavaParser.parse(file_in);
+				
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -49,14 +50,13 @@ public class Parser {
 			if(class_interface_visitor.IsClass()){
 				ClassNames.add(class_interface_visitor.getClassName());
 			}
-			if(class_interface_visitor.IsInterface()){
+			else if(class_interface_visitor.IsInterface()){
 				InterfaceNames.add(class_interface_visitor.getInterfaceName());
 			}
 			
 		}
 	
-		System.out.print("Classes:"+ClassNames+"\n");
-		System.out.print("Interfaces:"+InterfaceNames+"\n");
+		System.out.print(InterfaceNames);
 	}
 }
 
