@@ -1,0 +1,30 @@
+package JavaToUML;
+
+import java.io.File;
+import java.io.FilenameFilter;
+
+public class DirExplorer {
+	File directory;
+	
+	public DirExplorer(File file){
+		this.directory=file;
+	}
+	
+	FilenameFilter JavaFiles = new FilenameFilter() {
+		public boolean accept(File file, String str) {
+			String lowercaseName = str.toLowerCase();
+			if (lowercaseName.endsWith(".txt")) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	};
+	
+	public File[] listfiles(){
+		File[] files = directory.listFiles(JavaFiles);
+		return files;
+	}
+
+
+}
