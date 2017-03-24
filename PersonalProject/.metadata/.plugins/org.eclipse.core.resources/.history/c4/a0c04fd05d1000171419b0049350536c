@@ -12,7 +12,7 @@ public class Parser {
 	private static ArrayList<File> JavaFiles = new ArrayList<File>();
 
 	public static void main(String[] args) throws Exception{
-		String path = "C:\\Users\\Pavana\\workspace1\\text\\src\\text";
+		String path = "C:\\Users\\Pavana\\workspace1\\text\\src\\text\\A.java";
 
 		File inputFile = new File(path);
 		if(inputFile.isDirectory()){
@@ -25,15 +25,15 @@ public class Parser {
 			JavaFiles.add(inputFile);
 		}
 		
-		//System.out.print(JavaFiles);
-
+		System.out.print(JavaFiles);
+/**
 		for(int i=0; i<JavaFiles.size();i++){
 			File file = new File(JavaFiles.get(i).getAbsolutePath());
 			FileInputStream file_in = new FileInputStream(file);
 			CompilationUnit compile_unit = null;
 			try{
 				compile_unit = JavaParser.parse(file_in);
-				new ClassOrInterfaceVisitor().visit(compile_unit,null);
+				new FieldVisitor().visit(compile_unit,null);
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -41,7 +41,7 @@ public class Parser {
 			finally{
 				file_in.close();
 			}
-		}
+		}*/
 	}
 }
 

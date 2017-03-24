@@ -12,7 +12,7 @@ public class Parser {
 	private static ArrayList<File> JavaFiles = new ArrayList<File>();
 
 	public static void main(String[] args) throws Exception{
-		String path = "C:\\Users\\Pavana\\workspace1\\text\\src\\text";
+		String path = "C:\\Users\\Pavana\\workspace1\\text\\src\\text\\A.java";
 
 		File inputFile = new File(path);
 		if(inputFile.isDirectory()){

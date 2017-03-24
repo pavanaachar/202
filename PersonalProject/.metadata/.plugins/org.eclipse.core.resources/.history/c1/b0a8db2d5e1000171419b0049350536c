@@ -14,7 +14,7 @@ public class DirExplorer {
 	FilenameFilter JavaFiles = new FilenameFilter() {
 		public boolean accept(File file, String str) {
 			String lowercaseName = str.toLowerCase();
-			if (lowercaseName.endsWith(".java")) {
+			if (lowercaseName.endsWith(".txt")) {
 				return true;
 			} else {
 				return false;
