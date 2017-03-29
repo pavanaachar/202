@@ -2,6 +2,9 @@ package JavaToUML;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -9,15 +12,19 @@ import com.github.javaparser.ast.CompilationUnit;
 public class Parser {
 
 	private static ArrayList<File> JavaFiles = new ArrayList<File>();
-	
+
 	private static ArrayList<String> ClassNames = new ArrayList<String>();
-	
+
 	private static ArrayList<String> InterfaceNames = new ArrayList<String>();
 
-	public static void main(String[] args) throws Exception{
-		String path = "C:\\Users\\Pavana\\workspace1\\text\\src\\text";
+	private static ArrayList<String> UMLsource = new ArrayList<String>();
 
-		File inputFile = new File(path);
+	public static void main(String[] args) throws Exception{
+		String inputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\temp";
+		
+		String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\output.java";
+
+		File inputFile = new File(inputpath);
 		if(inputFile.isDirectory()){
 			DirExplorer dir_explorer = new DirExplorer(inputFile);
 
@@ -27,9 +34,10 @@ public class Parser {
 		{
 			JavaFiles.add(inputFile);
 		}
-		
+
 		//System.out.print(JavaFiles);
 
+		UMLsource.add("@startuml");
 		for(int i=0; i<JavaFiles.size();i++){
 			File file = new File(JavaFiles.get(i).getAbsolutePath());
 			FileInputStream file_in = null;
@@ -44,20 +52,59 @@ public class Parser {
 			finally{
 				file_in.close();
 			}
+
 			ClassOrInterfaceVisitor class_interface_visitor = new ClassOrInterfaceVisitor();
+
 			class_interface_visitor.visit(compile_unit,null);
+
 			if(class_interface_visitor.IsClass()){
-				ClassNames.add(class_interface_visitor.getClassName());
+				String classname = class_interface_visitor.getClassName();
+				ClassNames.add(classname);
+				UMLsource.add("class "+classname+"{");
 			}
-			if(class_interface_visitor.IsInterface()){
-				InterfaceNames.add(class_interface_visitor.getInterfaceName());
+
+			else if(class_interface_visitor.IsInterface()){
+				String interfacename = class_interface_visitor.getInterfaceName();
+				InterfaceNames.add(interfacename);
+				UMLsource.add("interface "+interfacename+"{");
+
 			}
 			
+			UMLsource.add("}");
 		}
-	
-		System.out.print("Classes:"+ClassNames+"\n");
-		System.out.print("Interfaces:"+InterfaceNames+"\n");
+		
+		UMLsource.add("@enduml");
+		
+		
+		writer(outputpath,UMLsource);
+		
+		PlantUML uml = new PlantUML(outputpath);
+		uml.GenerateUML();
+		
+		//System.out.println(UMLsource+"\n");
+
+		//System.out.print("Classes:"+ClassNames+"\n");
+	//	System.out.print("Interfaces:"+InterfaceNames+"\n");
 	}
+	
+	
+	public static void writer(String path,ArrayList<String> string){
+		PrintWriter filewriter = null;
+
+		try {
+			filewriter = new PrintWriter(path);
+			for(int i = 0; i<string.size();i++){
+				filewriter.println(string.get(i));
+			}
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		finally{
+			filewriter.close();
+		}
+	}
+
 }
 
 
