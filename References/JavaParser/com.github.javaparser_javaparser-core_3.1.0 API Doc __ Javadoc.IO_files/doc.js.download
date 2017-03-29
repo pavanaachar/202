@@ -1,0 +1,7 @@
+$(document).ready(function(){
+    $('#download_link').popover({
+        placement: 'bottom',
+        trigger: 'hover',
+        container: 'body'
+    });
+});
