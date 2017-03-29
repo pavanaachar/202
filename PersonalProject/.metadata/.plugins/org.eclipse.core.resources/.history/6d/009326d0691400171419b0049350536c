@@ -1,0 +1,35 @@
+package JavaToUML;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import net.sourceforge.plantuml.GeneratedImage;
+import net.sourceforge.plantuml.SourceFileReader;
+
+public class PlantUML {
+	
+	private String plantUMLSource;
+	
+	public PlantUML(String source){
+		plantUMLSource = source;
+	}
+public void GenerateUML(){
+	
+	File UMLsource; 
+	
+	try{
+		UMLsource = new File(plantUMLSource);
+		SourceFileReader sourcereader = new SourceFileReader(UMLsource);
+		List<GeneratedImage> images = sourcereader.getGeneratedImages();
+		File ClassDiagram = images.get(0).getPngFile();		
+	}
+	catch(IOException e){
+		e.printStackTrace();
+		
+	}
+	
+	
+	
+}
+}

@@ -1,0 +1,27 @@
+package JavaToUML;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
+public class FileWriter {
+	PrintWriter filewriter = null;
+
+
+	public void writer(String path,ArrayList<String> string){
+
+		try {
+			filewriter = new PrintWriter(path,"UTF-8");
+			for(int i = 0; i<string.size();i++){
+				filewriter.println(string.get(i));
+			}
+		}
+		catch (FileNotFoundException | UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+}

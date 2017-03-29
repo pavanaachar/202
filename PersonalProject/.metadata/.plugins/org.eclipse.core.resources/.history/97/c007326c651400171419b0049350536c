@@ -1,0 +1,19 @@
+package JavaToUML;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
+public class FileWriter {
+	PrintWriter filewriter = null;
+	public FileWriter(String path) throws IOException{
+		filewriter = new PrintWriter(path,"UTF-8");
+	}
+
+	public void writer(ArrayList<String> string){
+		for(int i = 0; i<string.size();i++){
+			filewriter.println(string.get(i));
+		}
+	}
+
+}
