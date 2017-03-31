@@ -1,2 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<qualifiedTypeNameHistroy/>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="japa.parser.ast.CompilationUnit"/>
+<fullyQualifiedTypeName name="japa.parser.JavaParser"/>
+<fullyQualifiedTypeName name="japa.parser.ast.expr.MethodCallExpr"/>
+<fullyQualifiedTypeName name="java.io.FileInputStream"/>
+<fullyQualifiedTypeName name="com.github.javaparser.ast.CompilationUnit"/>
+<fullyQualifiedTypeName name="com.github.javaparser.JavaParser"/>
+<fullyQualifiedTypeName name="com.github.javaparser.ast.body.FieldDeclaration"/>
+<fullyQualifiedTypeName name="com.github.javaparser.ast.body.MethodDeclaration"/>
+<fullyQualifiedTypeName name="com.github.javaparser.ast.visitor.VoidVisitorAdapter"/>
+<fullyQualifiedTypeName name="com.github.javaparser.ast.body.ClassOrInterfaceDeclaration"/>
+<fullyQualifiedTypeName name="com.github.javaparser.ast.expr.MethodCallExpr"/>
+<fullyQualifiedTypeName name="java.io.FilenameFilter"/>
+<fullyQualifiedTypeName name="java.io.ByteArrayOutputStream"/>
+<fullyQualifiedTypeName name="java.io.ByteArrayInputStream"/>
+<fullyQualifiedTypeName name="java.io.InputStream"/>
+<fullyQualifiedTypeName name="javax.imageio.ImageIO"/>
+<fullyQualifiedTypeName name="java.awt.image.BufferedImage"/>
+<fullyQualifiedTypeName name="java.io.File"/>
+<fullyQualifiedTypeName name="net.sourceforge.plantuml.SourceStringReader"/>
+<fullyQualifiedTypeName name="java.io.PrintWriter"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="JavaToUML.FileWriter"/>
+<fullyQualifiedTypeName name="net.sourceforge.plantuml.SourceFileReader"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+</qualifiedTypeNameHistroy>
