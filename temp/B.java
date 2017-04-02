@@ -1,4 +1,4 @@
 public class B{
 
-int x;
+int k;
 }

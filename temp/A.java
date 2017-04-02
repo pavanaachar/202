@@ -1,7 +1,7 @@
 class A {
 
-	int a;
-	int b;
+	public int a;
+	private int b;
 	
 	public A(){
 		System.out.print("A");

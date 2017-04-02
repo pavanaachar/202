@@ -27,7 +27,9 @@ public class UMLparser {
 		}
 
 		Parser javaparser = new Parser(JavaFiles);
-		try {
+		
+		 try {
+		 
 			PlantUMLsource = javaparser.parser();
 		} 
 		catch (IOException e) {
@@ -37,8 +39,8 @@ public class UMLparser {
 		
 		FileWriter.writer(outputpath,PlantUMLsource);
 		
-		PlantUML uml = new PlantUML(outputpath);
-		uml.GenerateUML();
+	PlantUML uml = new PlantUML(outputpath);
+	uml.GenerateUML();
 		
 		
 	}

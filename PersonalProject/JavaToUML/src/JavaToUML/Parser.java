@@ -49,6 +49,13 @@ public class Parser {
 				String classname = class_interface_visitor.getClassName();
 				ClassNames.add(classname);
 				UMLsource.add("class "+classname+"{");
+				
+				FieldVisitor fieldvisitor = new FieldVisitor();
+				fieldvisitor.visit(compile_unit,null);
+				ArrayList<String> fields = fieldvisitor.getFieldName();
+				if(fields!=null){
+					UMLsource.addAll(fieldvisitor.getFieldName());
+				}
 			}
 
 			else if(class_interface_visitor.IsInterface()){
@@ -57,6 +64,10 @@ public class Parser {
 				UMLsource.add("interface "+interfacename+"{");
 
 			}
+
+
+
+
 
 			UMLsource.add("}");
 		}
