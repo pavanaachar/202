@@ -2,9 +2,9 @@ package JavaToUML;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 
@@ -18,25 +18,14 @@ public class Parser {
 
 	private static ArrayList<String> UMLsource = new ArrayList<String>();
 
-	public static void main(String[] args) throws Exception{
-		String inputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\temp";
-		
-		String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\output.java";
+	public Parser(ArrayList<File> files){
+		JavaFiles = files;
+	}
 
-		File inputFile = new File(inputpath);
-		if(inputFile.isDirectory()){
-			DirExplorer dir_explorer = new DirExplorer(inputFile);
-
-			JavaFiles = dir_explorer.listFiles();
-		}
-		else 
-		{
-			JavaFiles.add(inputFile);
-		}
-
-		//System.out.print(JavaFiles);
+	public ArrayList<String> parser() throws IOException {		
 
 		UMLsource.add("@startuml");
+
 		for(int i=0; i<JavaFiles.size();i++){
 			File file = new File(JavaFiles.get(i).getAbsolutePath());
 			FileInputStream file_in = null;
@@ -68,40 +57,15 @@ public class Parser {
 				UMLsource.add("interface "+interfacename+"{");
 
 			}
-			
+
 			UMLsource.add("}");
 		}
-		
+
 		UMLsource.add("@enduml");
-		
-		
-		writer(outputpath,UMLsource);
-		
-		PlantUML uml = new PlantUML(outputpath);
-		uml.GenerateUML();
-		
-		//System.out.println(UMLsource+"\n");
 
-		//System.out.print("Classes:"+ClassNames+"\n");
-	//	System.out.print("Interfaces:"+InterfaceNames+"\n");
-	}
-	
-	
-	public static void writer(String path,ArrayList<String> string){
-		PrintWriter filewriter = null;
 
-		try {
-			filewriter = new PrintWriter(path);
-			for(int i = 0; i<string.size();i++){
-				filewriter.println(string.get(i));
-			}
-		}
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		finally{
-			filewriter.close();
-		}
+		return UMLsource;
+
 	}
 
 }
