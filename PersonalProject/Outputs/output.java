@@ -1,6 +1,7 @@
 @startuml
 class A{
 b
+sampleMethod()
 }
 class B{
 k
