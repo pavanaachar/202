@@ -65,7 +65,9 @@ public class Parser {
 
 			}
 
-
+			MethodVisitor methodvisitor = new MethodVisitor();
+			methodvisitor.visit(compile_unit,null);
+			UMLsource.addAll(methodvisitor.getMethods());
 
 
 
