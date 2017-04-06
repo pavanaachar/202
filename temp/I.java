@@ -1,5 +1,5 @@
 public interface I {
 
-void sample();
+//void sample();
 
 }
