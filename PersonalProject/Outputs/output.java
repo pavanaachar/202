@@ -1,11 +1,11 @@
 @startuml
 class A{
-b
+-b
 sampleMethod()
 anotherMethod()
 }
 class B{
-k
++k
 hello()
 }
 interface I{
