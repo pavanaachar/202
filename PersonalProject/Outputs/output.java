@@ -2,6 +2,7 @@
 class A{
 b
 sampleMethod()
+anotherMethod()
 }
 class B{
 k
