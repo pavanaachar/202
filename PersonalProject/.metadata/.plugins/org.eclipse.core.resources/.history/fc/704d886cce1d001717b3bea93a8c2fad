@@ -18,7 +18,6 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 		
 	}
 	
-	@Override
 	public void visit(ClassOrInterfaceDeclaration n, Object obj) {
 		
 		if(!n.isInterface()){
