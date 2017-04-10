@@ -33,7 +33,7 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 					name = name+"-";
 				}
 				else{
-					name = name+"-";
+					name = name+"+";
 				}
 				
 				name = name+field.toString();
