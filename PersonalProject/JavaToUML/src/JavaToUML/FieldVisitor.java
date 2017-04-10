@@ -14,11 +14,11 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 	public ArrayList<String> FieldName;
 
 	public FieldVisitor(){
-		FieldName = null;
-
-	}
-	public void visit(FieldDeclaration n,Object obj){
 		FieldName = new ArrayList<String>();
+	}
+	@Override
+	public void visit(FieldDeclaration n,Object obj){
+		
 		if(n.getVariables().isEmpty()==false){
 			NodeList<VariableDeclarator> fieldlist = n.getVariables();
 			String name = "";
@@ -35,6 +35,7 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 				else{
 					name = name+"+";
 				}
+				
 				name = name+field.toString();
 				FieldName.add(name);
 				System.out.println(name);
