@@ -1,17 +1,17 @@
 @startuml
 class A{
-+a:int
--b:int
-sampleMethod()
-anotherMethod()
++a
+-b
++sampleMethod()
+-anotherMethod()
 }
 class B{
-+k:int
-hello()
+-k
++hello()
 }
 interface I{
 }
 class J{
-method()
++method()
 }
 @enduml
