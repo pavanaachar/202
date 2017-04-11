@@ -36,7 +36,7 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 					name = name+"-";
 				}
 				
-				name = name+field.toString();
+				name = name+field.toString()+":"+field.getType().toString();
 				FieldName.add(name);
 				System.out.println(name);
 			}
