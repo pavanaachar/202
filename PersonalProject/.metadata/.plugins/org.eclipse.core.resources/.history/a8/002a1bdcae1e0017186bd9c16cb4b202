@@ -42,7 +42,7 @@ public class MethodVisitor extends VoidVisitorAdapter<Object> {
 				name += n.getParameters().get(i).getType();
 				
 			}
-			name = name + ")";
+			name = name + ")()";
 			
 		}
 		
