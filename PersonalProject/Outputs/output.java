@@ -2,7 +2,7 @@
 class A{
 +a:int
 -b:int
-+sampleMethod()
++sampleMethod(s:String)
 -anotherMethod()
 }
 class B{
