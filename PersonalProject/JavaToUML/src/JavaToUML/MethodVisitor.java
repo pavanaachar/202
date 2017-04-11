@@ -5,7 +5,7 @@ import java.util.EnumSet;
 
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.MethodDeclaration;
-
+import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 
@@ -29,10 +29,25 @@ public class MethodVisitor extends VoidVisitorAdapter<Object> {
 		default: name += "+";
 		}
 		name += n.getNameAsString();
-		String methodname = name + "()";
-		System.out.println(methodname);
-
-		Methods.add(methodname);
+		int params = n.getParameters().size();
+		if(params==0){
+		name = name + "()";
+		}
+		else
+		{
+			name += "(";
+			for(int i= 0;i<params;i++)
+			{
+				name += n.getParameters().get(i).getNameAsString() + ":";
+				name += n.getParameters().get(i).getType();
+				
+			}
+			name = name + ")()";
+			
+		}
+		
+		
+		Methods.add(name);
 
 	}
 
