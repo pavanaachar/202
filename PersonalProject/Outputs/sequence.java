@@ -35,8 +35,8 @@ interface Subject{
 class TheEconomy{
 }
 class ConcreteObserver--class ConcreteSubject
-class Subject<|..interface ConcreteSubject
-class Observer<|..interface ConcreteObserver
+interface Subject<|..class ConcreteSubject
+interface Observer<|..class ConcreteObserver
 class ConcreteObserver<|--class Optimist
 class ConcreteSubject<|--class TheEconomy
 class ConcreteObserver<|--class Pessimist
