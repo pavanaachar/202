@@ -1,7 +1,7 @@
 @startuml
 class A{
 +a:int
--b:int
+-b:B
 +sampleMethod(s:String):void
 -anotherMethod(x:int,y:int):void
 }
@@ -14,4 +14,5 @@ interface I{
 class J{
 +method():void
 }
+class A--class B
 @enduml
