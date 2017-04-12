@@ -16,4 +16,5 @@ class J{
 }
 class A--class B
 class A..|>interface I
+class B--|>class J
 @enduml
