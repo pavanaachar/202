@@ -99,7 +99,7 @@ public class Parser {
 		for (Entry<String, String> entry : ClassImplementsMap.entrySet()) {
 		    //System.out.println(entry.getValue());
 						
-					UMLsource.add("class "+entry.getKey()+"..|>"+"interface "+entry.getValue());
+				//	UMLsource.add("class "+entry.getKey()+"..|>"+"interface "+entry.getValue());
 					//System.out.println("class "+entry.getKey()+"--"+"class "+s);
 				
 			
