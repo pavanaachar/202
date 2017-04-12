@@ -15,6 +15,8 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 	
 	static HashMap<String, String> ClassImplementsMap = new HashMap<String,String>();
 	
+	static HashMap<String, String> ClassExtendsMap = new HashMap<String,String>();
+	
 	public ClassOrInterfaceVisitor(){
 		this.IsClass= false;
 		this.IsInterface = false;
@@ -39,12 +41,21 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 			this.IsInterface = true;
 		}
 		
-		System.out.println(n.getImplementedTypes().isEmpty());
+		
 		if(!n.getImplementedTypes().isEmpty()){
 			System.out.println(n.getImplementedTypes().get(0).getNameAsString());
 			ClassImplementsMap.put(ClassName, n.getImplementedTypes().get(0).getNameAsString());
 				
 		}
+		
+		System.out.println(n.getExtendedTypes().isEmpty());
+		
+		if(!n.getExtendedTypes().isEmpty()){
+			System.out.println(n.getExtendedTypes().get(0).getNameAsString());
+			ClassExtendsMap.put(ClassName, n.getExtendedTypes().get(0).getNameAsString());
+				
+		}
+		
 
 	}
 	
@@ -66,6 +77,10 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 	
 	public HashMap<String, String> getClassImplementsMap(){
 		return ClassImplementsMap;
+	}
+	
+	public HashMap<String, String> getClassExtendsMap(){
+		return ClassExtendsMap;
 	}
 	
 
