@@ -1,5 +1,8 @@
 package JavaToUML;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
@@ -9,6 +12,8 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 	private String InterfaceName;
 	private boolean IsClass;
 	private boolean IsInterface;
+	
+	static HashMap<String, String> ClassImplementsMap = new HashMap<String,String>();
 	
 	public ClassOrInterfaceVisitor(){
 		this.IsClass= false;
@@ -24,6 +29,7 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 		if(!n.isInterface()){
 			this.ClassName = n.getName().toString();
 			this.IsClass = true;
+			
 		}
 		
 		
@@ -33,6 +39,12 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 			this.IsInterface = true;
 		}
 		
+		System.out.println(n.getImplementedTypes().isEmpty());
+		if(!n.getImplementedTypes().isEmpty()){
+			System.out.println(n.getImplementedTypes().get(0).getNameAsString());
+			ClassImplementsMap.put(ClassName, n.getImplementedTypes().get(0).getNameAsString());
+				
+		}
 
 	}
 	
@@ -50,6 +62,10 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 	
 	public boolean IsInterface(){
 		return this.IsInterface;
+	}
+	
+	public HashMap<String, String> getClassImplementsMap(){
+		return ClassImplementsMap;
 	}
 	
 
