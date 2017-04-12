@@ -35,9 +35,9 @@ interface Subject{
 class TheEconomy{
 }
 class ConcreteObserver--class ConcreteSubject
-class ConcreteSubject..|>interface Subject
-class ConcreteObserver..|>interface Observer
-class Optimist--|>class ConcreteObserver
-class TheEconomy--|>class ConcreteSubject
-class Pessimist--|>class ConcreteObserver
+class Subject<|..interface ConcreteSubject
+class Observer<|..interface ConcreteObserver
+class ConcreteObserver<|--class Optimist
+class ConcreteSubject<|--class TheEconomy
+class ConcreteObserver<|--class Pessimist
 @enduml
