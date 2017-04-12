@@ -102,13 +102,13 @@ public class Parser {
 
 		for (Entry<String, String> entry : ClassImplementsMap.entrySet()) {
 
-			UMLsource.add("class "+entry.getValue()+"<|.."+"interface "+entry.getKey());
+			UMLsource.add("class "+entry.getKey()+"..|>"+"interface "+entry.getValue());
 
 		}
 
 		for (Entry<String, String> entry : ClassExtendsMap.entrySet()) {
 
-			UMLsource.add("class "+entry.getValue()+"<|--"+"class "+entry.getKey());
+			UMLsource.add("class "+entry.getKey()+"--|>"+"class "+entry.getValue());
 		}
 
 		UMLsource.add("@enduml");
