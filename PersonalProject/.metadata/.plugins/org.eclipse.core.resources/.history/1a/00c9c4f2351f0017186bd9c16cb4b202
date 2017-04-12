@@ -13,7 +13,7 @@ public class UMLparser {
 	public static void main(String[] args) {
 		String inputpath = "C:\\Users\\Pavana\\Desktop\\202Temp\\sequence";
 		
-		String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\sequence.java";
+		String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\output.java";
 
 		File inputFile = new File(inputpath);
 		if(inputFile.isDirectory()){
