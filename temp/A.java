@@ -7,7 +7,7 @@ class A {
 	public void sampleMethod(String s){
 
 	}
-	private void anotherMethod(){
+	private void anotherMethod(int x, int y){
 }
 	
 	
