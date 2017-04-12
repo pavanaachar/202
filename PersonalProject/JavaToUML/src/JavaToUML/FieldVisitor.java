@@ -12,9 +12,11 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 
 	public ArrayList<String> FieldName;
+	public ArrayList<String> types;
 
 	public FieldVisitor(){
 		FieldName = new ArrayList<String>();
+		types = new ArrayList<String>();
 	}
 	@Override
 	public void visit(FieldDeclaration n,Object obj){
@@ -38,6 +40,7 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 				
 				name = name+field.toString()+":"+field.getType().toString();
 				FieldName.add(name);
+				types.add(field.getType().toString());
 				System.out.println(name);
 			}
 
@@ -48,5 +51,9 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 	}
 	public ArrayList<String> getFieldName(){
 		return FieldName;
+	}
+	
+	public ArrayList<String> getFieldTypes(){
+		return types;
 	}
 }
