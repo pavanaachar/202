@@ -1,4 +1,4 @@
-class A {
+class A implements I {
 
 	public int a;
 
