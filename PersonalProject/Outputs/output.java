@@ -3,7 +3,7 @@ class A{
 +a:int
 -b:int
 +sampleMethod(s:String)
--anotherMethod()
+-anotherMethod(x:int,y:int)
 }
 class B{
 -k:int
