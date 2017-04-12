@@ -12,9 +12,11 @@ class B{
 interface I{
 }
 class J{
++i:I
 +method():void
 }
 class A--class B
+interface I..class J
 interface I<|..class A
 class J<|--class B
 @enduml
