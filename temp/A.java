@@ -1,9 +1,9 @@
 class A {
 
 	public int a;
-	private int b;
-	
-	
+
+	private B b;
+		
 	public void sampleMethod(String s){
 
 	}
