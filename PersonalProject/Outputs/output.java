@@ -15,6 +15,6 @@ class J{
 +method():void
 }
 class A--class B
-class I<|..interface A
+interface I<|..class A
 class J<|--class B
 @enduml
