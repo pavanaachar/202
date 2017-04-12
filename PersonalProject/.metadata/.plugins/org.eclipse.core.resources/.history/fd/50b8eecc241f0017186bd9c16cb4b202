@@ -48,7 +48,6 @@ public class MethodVisitor extends VoidVisitorAdapter<Object> {
 			name = name + ")";
 			
 		}
-		name += ":"+ n.getType();
 		
 		
 		Methods.add(name);
