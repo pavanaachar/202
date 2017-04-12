@@ -19,10 +19,12 @@ public class Parser {
 	private static ArrayList<String> InterfaceNames = new ArrayList<String>();
 
 	private static ArrayList<String> UMLsource = new ArrayList<String>();
-	
+
 	HashMap<String, ArrayList<String>> ClassFieldsMap = new HashMap<String,ArrayList<String>>();
-	
+
 	HashMap<String, String> ClassImplementsMap = new HashMap<String,String>();
+
+	HashMap<String, String> ClassExtendsMap = new HashMap<String,String>();
 
 
 	public Parser(ArrayList<File> files){
@@ -56,7 +58,7 @@ public class Parser {
 				String classname = class_interface_visitor.getClassName();
 				ClassNames.add(classname);
 				UMLsource.add("class "+classname+"{");
-				
+
 				FieldVisitor fieldvisitor = new FieldVisitor();
 				fieldvisitor.visit(compile_unit,null);
 				ArrayList<String> fields = fieldvisitor.getFieldName();
@@ -65,7 +67,7 @@ public class Parser {
 				}
 				ArrayList<String> Fieldtypes = fieldvisitor.getFieldTypes();
 				ClassFieldsMap.put(classname, Fieldtypes);
-				
+
 			}
 
 			else if(class_interface_visitor.IsInterface()){
@@ -74,9 +76,11 @@ public class Parser {
 				UMLsource.add("interface "+interfacename+"{");
 
 			}
-			
+
 			ClassImplementsMap = class_interface_visitor.getClassImplementsMap();
-			
+
+			ClassExtendsMap = class_interface_visitor.getClassExtendsMap();
+
 			MethodVisitor methodvisitor = new MethodVisitor();
 			methodvisitor.visit(compile_unit,null);
 			UMLsource.addAll(methodvisitor.getMethods());
@@ -85,9 +89,9 @@ public class Parser {
 
 			UMLsource.add("}");
 		}
-		
+
 		for (Entry<String, ArrayList<String>> entry : ClassFieldsMap.entrySet()) {
-		    //System.out.println(entry.getValue());
+			//System.out.println(entry.getValue());
 			for(String s: entry.getValue()){
 				if(ClassNames.contains(s) ){
 					UMLsource.add("class "+entry.getKey()+"--"+"class "+s);
@@ -95,14 +99,16 @@ public class Parser {
 				}
 			}
 		}
-		
+
 		for (Entry<String, String> entry : ClassImplementsMap.entrySet()) {
-		    //System.out.println(entry.getValue());
-						
-					UMLsource.add("class "+entry.getKey()+"..|>"+"interface "+entry.getValue());
-					//System.out.println("class "+entry.getKey()+"--"+"class "+s);
-				
-			
+
+			UMLsource.add("class "+entry.getKey()+"..|>"+"interface "+entry.getValue());
+
+		}
+
+		for (Entry<String, String> entry : ClassExtendsMap.entrySet()) {
+
+			UMLsource.add("class "+entry.getKey()+"--|>"+"class "+entry.getValue());
 		}
 
 		UMLsource.add("@enduml");
