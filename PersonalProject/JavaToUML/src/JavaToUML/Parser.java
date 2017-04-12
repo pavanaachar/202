@@ -97,6 +97,10 @@ public class Parser {
 					UMLsource.add("class "+entry.getKey()+"--"+"class "+s);
 					//System.out.println("class "+entry.getKey()+"--"+"class "+s);
 				}
+				else if(InterfaceNames.contains(s) ){
+					UMLsource.add("interface "+s+".."+"class "+entry.getKey());
+					//System.out.println("class "+entry.getKey()+"--"+"class "+s);
+				}
 			}
 		}
 
