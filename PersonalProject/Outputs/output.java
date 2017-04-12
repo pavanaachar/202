@@ -2,16 +2,16 @@
 class A{
 +a:int
 -b:int
-+sampleMethod(s:String)
--anotherMethod(x:int,y:int)
++sampleMethod(s:String):void
+-anotherMethod(x:int,y:int):void
 }
 class B{
 -k:int
-+hello()
++hello():void
 }
 interface I{
 }
 class J{
-+method()
++method():void
 }
 @enduml
