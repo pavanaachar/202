@@ -11,9 +11,9 @@ public class UMLparser {
 	private static ArrayList<String> PlantUMLsource = new ArrayList<String>();	
 	
 	public static void main(String[] args) {
-		String inputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Testcases\\uml-parser-test-1";
+		String inputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\temp";
 		
-		String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\uml-parser-test-1.java";
+		String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\output.java";
 
 		File inputFile = new File(inputpath);
 		if(inputFile.isDirectory()){
