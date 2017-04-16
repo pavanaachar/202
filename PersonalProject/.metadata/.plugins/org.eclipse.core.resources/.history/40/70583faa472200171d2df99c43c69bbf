@@ -102,7 +102,7 @@ public class Parser {
 						t = s.substring(index1+1, index2);
 						System.out.println(t);
 						if(ClassNames.contains(t)){
-							UMLsource.add("class "+entry.getKey()+"--"+"\"*\""+"class "+t);
+							UMLsource.add("class "+entry.getKey()+"\"*\""+"--"+"class "+t);
 
 						}
 

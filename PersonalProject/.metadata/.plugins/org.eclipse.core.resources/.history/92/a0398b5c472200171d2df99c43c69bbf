@@ -102,14 +102,14 @@ public class Parser {
 						t = s.substring(index1+1, index2);
 						System.out.println(t);
 						if(ClassNames.contains(t)){
-							UMLsource.add("class "+entry.getKey()+"--"+"\"*\""+"class "+t);
+							UMLsource.add("class "+entry.getKey()+"\"*\""+"--"+"class "+t);
 
 						}
 
 					}
 
 				}	
-				/**	else if(!s.equals(t)){
+				else if(!s.equals(t)){
 					if(ClassNames.contains(s)){
 
 						if(!UMLsource.contains("class "+s+"--"+"class "+entry.getKey()))
@@ -122,31 +122,28 @@ public class Parser {
 						UMLsource.add("interface "+s+".."+"class "+entry.getKey());
 						//System.out.println("class "+entry.getKey()+"--"+"class "+s);
 					}
-				}*/
-				if(InterfaceNames.contains(s) ){
-					UMLsource.add("interface "+s+".."+"class "+entry.getKey());
 				}
 			}
-			}
-			for (Entry<String, String> entry : ClassImplementsMap.entrySet()) {
+		}
+		for (Entry<String, String> entry : ClassImplementsMap.entrySet()) {
 
-				UMLsource.add("interface "+entry.getValue()+"<|.."+"class "+entry.getKey());
-
-			}
-
-			for (Entry<String, String> entry : ClassExtendsMap.entrySet()) {
-
-				UMLsource.add("class "+entry.getValue()+"<|--"+"class "+entry.getKey());
-			}
-
-			UMLsource.add("@enduml");
-
-
-			return UMLsource;
+			UMLsource.add("interface "+entry.getValue()+"<|.."+"class "+entry.getKey());
 
 		}
 
+		for (Entry<String, String> entry : ClassExtendsMap.entrySet()) {
+
+			UMLsource.add("class "+entry.getValue()+"<|--"+"class "+entry.getKey());
+		}
+
+		UMLsource.add("@enduml");
+
+
+		return UMLsource;
+
 	}
+
+}
 
 
 
