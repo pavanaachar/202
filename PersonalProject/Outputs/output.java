@@ -6,7 +6,7 @@ class A{
 -anotherMethod(x:int,y:int):void
 }
 class B{
--k:int
+-k:ArrayList<A>
 +hello():void
 }
 interface I{
@@ -15,7 +15,7 @@ class J{
 +i:I
 +method():void
 }
-class A--class B
+class B--"*"class A
 interface I..class J
 interface I<|..class A
 class J<|--class B
