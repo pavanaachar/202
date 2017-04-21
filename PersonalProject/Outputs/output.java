@@ -12,9 +12,8 @@ interface I{
 class J{
 +method():void
 }
-class A--class B
-class B--"*"class A
-interface I..class J
+class A "2" -- "*" class B
+class J "1" --  interface I
 interface I<|..class A
 class J<|--class B
 @enduml
