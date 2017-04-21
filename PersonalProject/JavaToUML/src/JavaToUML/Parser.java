@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.github.javaparser.JavaParser;
@@ -16,7 +17,6 @@ public class Parser {
 
 	ArrayList<CompilationUnit> compilationunits = new ArrayList<CompilationUnit>();
 
-
 	public static ArrayList<String> ClassNames = new ArrayList<String>();
 
 	public static ArrayList<String> InterfaceNames = new ArrayList<String>();
@@ -25,16 +25,58 @@ public class Parser {
 
 	HashMap<String, ArrayList<String>> ClassFieldsMap = new HashMap<String,ArrayList<String>>();
 
-	HashMap<String, String> ClassImplementsMap = new HashMap<String,String>();
+	HashMap<String, ArrayList<String>> ClassImplementsMap = new HashMap<String,ArrayList<String>>();
+
+	HashMap<String, ArrayList<String>> InterfaceImplementsMap = new HashMap<String,ArrayList<String>>();
 
 	HashMap<String, String> ClassExtendsMap = new HashMap<String,String>();
+	
+	HashMap<String, ArrayList<String>> ClassDependencyMap = new HashMap<String,ArrayList<String>>();
 
+	// Track edges from Class to Class or interface
+	class Edge {
+		public String from;
+		public String to;
+		public int fromWeight;
+		public int toWeight;
+
+
+		Edge(String from, String to) {
+			this.from = from;
+			this.to = to;
+			this.fromWeight = -1;
+			this.toWeight = -1;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			Edge e = (Edge)obj;
+
+			if (obj == null) {
+				return false;
+			}
+
+			if ((this.from.equals(e.from) && 
+					this.to.equals(e.to)) ||
+					(this.from.equals(e.to) &&
+							this.to.equals(e.from))) {
+				return true;
+			}
+			return false;
+		}
+	}
 
 	public Parser(ArrayList<File> files){
 		JavaFiles = files;
 	}
 
 	public ArrayList<String> parser() throws IOException {		
+
+
+		HashMap<String, ArrayList<ObjCount>> classVarMap = new HashMap<String, ArrayList<ObjCount>>();
+
+		ArrayList<Edge> edges = new ArrayList<Edge>();
+
 
 		UMLsource.add("@startuml");
 
@@ -71,21 +113,34 @@ public class Parser {
 
 			}
 
-			ClassImplementsMap = class_interface_visitor.getClassImplementsMap();
-
-			ClassExtendsMap = class_interface_visitor.getClassExtendsMap();
 
 
 		}
+		ClassImplementsMap = ClassOrInterfaceVisitor.getClassImplementsMap();
+
+		ClassExtendsMap = ClassOrInterfaceVisitor.getClassExtendsMap();
+
+		InterfaceImplementsMap = ClassOrInterfaceVisitor.getInterfaceImplementsMap();
+
 
 		for(int i =0;i<compilationunits.size();i++){
 			CompilationUnit cu = compilationunits.get(i);
 			ClassOrInterfaceVisitor class_interface_visitor = new ClassOrInterfaceVisitor();
+			
+			boolean isclass = false;
+			boolean isInterface = false;
+			
+			String classname = "";
+			String interfacename = "";
+			
 
 			class_interface_visitor.visit(cu,null);
 
 			if(class_interface_visitor.IsClass()){
-				String classname = class_interface_visitor.getClassName();
+				
+				isclass = true;
+				
+				classname = class_interface_visitor.getClassName();
 
 				UMLsource.add("class "+classname+"{");
 
@@ -98,73 +153,113 @@ public class Parser {
 				ArrayList<String> Fieldtypes = fieldvisitor.getFieldTypes();
 				ClassFieldsMap.put(classname, Fieldtypes);
 
+				ArrayList<ObjCount> objCountList = fieldvisitor.getFieldObjCountList();
+				classVarMap.put(classname, objCountList);
 			}
 
 			else if(class_interface_visitor.IsInterface()){
-				String interfacename = class_interface_visitor.getInterfaceName();
-				InterfaceNames.add(interfacename);
+				isInterface = true;
+				interfacename = class_interface_visitor.getInterfaceName();
+				// InterfaceNames.add(interfacename);
 				UMLsource.add("interface "+interfacename+"{");
-
 			}
 
 
 			MethodVisitor methodvisitor = new MethodVisitor();
 			methodvisitor.visit(cu,null);
+			
 			UMLsource.addAll(methodvisitor.getMethods());
-
-
+			if(isclass){
+				ClassDependencyMap.put(classname, methodvisitor.gettypess());
+			}
 
 			UMLsource.add("}");
 
 		}
 
 
-		// Generate plantuml grammar for relation between classes
-
-		for (Entry<String, ArrayList<String>> entry : ClassFieldsMap.entrySet()) {
-			//System.out.println(entry.getValue());
-			for(String s: entry.getValue()){
-				String t = "";
-				if(s.startsWith("*")){
-					System.out.println(s);
-					t = s.replace("*", "");
-					System.out.println(t);
-					if(ClassNames.contains(t)){
-						UMLsource.add("class "+entry.getKey()+"--"+"\"*\""+"class "+t);
-
-					}
-					else
-						if(InterfaceNames.contains(t) ){
-							UMLsource.add("class "+entry.getKey()+"--"+"\"*\""+"interface "+t);
-						}
-
-				}
+		// Generate plantuml grammar for association between classes with cardinality
 
 
-				else {
-					if(ClassNames.contains(s)){
+		for (Iterator<String> iterator = classVarMap.keySet().iterator(); iterator.hasNext();) {
+			String key = iterator.next();
+			//System.out.println("Class: " + key);
 
-						if(!UMLsource.contains("class "+s+"--"+"class "+entry.getKey()))
-						{
-							UMLsource.add("class "+entry.getKey()+"--"+"class "+s);
-						}
-						//System.out.println("class "+s+"--"+"class "+entry.getKey());
-					}
-					else if(InterfaceNames.contains(s) ){
-						UMLsource.add("interface "+s+".."+"class "+entry.getKey());
-						//System.out.println("class "+entry.getKey()+"--"+"class "+s);
+			for (Iterator<ObjCount> iterator2 = classVarMap.get(key).iterator(); iterator2.hasNext();) {
+				ObjCount o = iterator2.next();
+				//System.out.println(" " + o.className);
+
+				Edge tempEdge = new Edge(key, o.className);
+				//System.out.println("Adding Edge");
+				if (!edges.contains(tempEdge)) {
+					tempEdge.fromWeight = o.count;
+					edges.add(tempEdge);
+				} else {
+					Edge e = edges.get(edges.indexOf(tempEdge));
+					if (e.from.equals(key)) {
+						// We should never encounter the same classX -> classY mapping twice
+						assert(false);
+					} else {
+						assert(e.to.equals(key));
+						assert(e.fromWeight != -1 && e.toWeight == -1);
+						e.toWeight = o.count;
 					}
 				}
+			}
+		}
+
+		for (Edge e : edges) {
+			String fromWeightStr = null;
+			String toWeightStr = null;
+
+			if (e.fromWeight >= ObjCount.MAX_OBJ_COUNT) {
+				fromWeightStr = "\"*\"";
+			} else if (e.fromWeight > -1) {
+				fromWeightStr = "\"" + Integer.toString(e.fromWeight) + "\"";
+			} else  {
+				fromWeightStr = "";
+			}
+
+			if (e.toWeight >= ObjCount.MAX_OBJ_COUNT) {
+				toWeightStr = "\"*\"";
+			} else if (e.toWeight > -1) {
+				toWeightStr = "\"" + Integer.toString(e.toWeight) + "\"";
+			} else {
+				toWeightStr = "";
+			}
+
+			if (InterfaceNames.contains(e.to)) {
+				UMLsource.add("class " + e.from + " " + toWeightStr + " -- " +  fromWeightStr + " " + "interface " + e.to);
+			} else {
+				UMLsource.add("class " + e.from + " " + toWeightStr + " -- " +  fromWeightStr+ " " + "class " + e.to);
+			}
+		}
+		for (Entry<String, ArrayList<String>> entry : ClassDependencyMap.entrySet()) {
+			for(String name:entry.getValue()){
+				UMLsource.add("class "+entry.getKey()+"\"uses\""+".."+"interface "+name);
+				//UMLsource.add(+);
 
 			}
 
 		}
-		for (Entry<String, String> entry : ClassImplementsMap.entrySet()) {
 
-			UMLsource.add("interface "+entry.getValue()+"<|.."+"class "+entry.getKey());
+		for (Entry<String, ArrayList<String>> entry : ClassImplementsMap.entrySet()) {
+			for(String name:entry.getValue()){
+
+				UMLsource.add("interface "+name+"<|.."+"class "+entry.getKey());
+
+			}
 
 		}
+		
+		for (Entry<String, ArrayList<String>> entry : InterfaceImplementsMap.entrySet()) {
+			for(String name:entry.getValue()){
 
+				UMLsource.add("interface "+name+"<|.."+"interface "+entry.getKey());
+
+			}
+
+		}
 		for (Entry<String, String> entry : ClassExtendsMap.entrySet()) {
 
 			UMLsource.add("class "+entry.getValue()+"<|--"+"class "+entry.getKey());
