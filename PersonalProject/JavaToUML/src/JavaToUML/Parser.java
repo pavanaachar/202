@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 import com.github.javaparser.JavaParser;
@@ -30,7 +32,7 @@ public class Parser {
 	HashMap<String, ArrayList<String>> InterfaceImplementsMap = new HashMap<String,ArrayList<String>>();
 
 	HashMap<String, String> ClassExtendsMap = new HashMap<String,String>();
-	
+
 	HashMap<String, ArrayList<String>> ClassDependencyMap = new HashMap<String,ArrayList<String>>();
 
 	// Track edges from Class to Class or interface
@@ -68,6 +70,19 @@ public class Parser {
 
 	public Parser(ArrayList<File> files){
 		JavaFiles = files;
+	}
+
+	private String getBaseTypeFromCollection(String type) {
+		List<String> collections = new ArrayList<String>(Arrays.asList("Collection", "ArrayList", "List", "Hashmap", "Set"));
+
+		if(type.contains("<"))
+		{
+			if(collections.contains(type.substring(0, type.indexOf("<"))))
+			{
+				return type.substring(type.indexOf("<") + 1, type.indexOf(">"));
+			}
+		}
+		return null;
 	}
 
 	public ArrayList<String> parser() throws IOException {		
@@ -126,20 +141,23 @@ public class Parser {
 		for(int i =0;i<compilationunits.size();i++){
 			CompilationUnit cu = compilationunits.get(i);
 			ClassOrInterfaceVisitor class_interface_visitor = new ClassOrInterfaceVisitor();
-			
+			HashMap<String,String> varVisiblity = null;
+			HashMap<String,String> varToTypeMap = null;
+			ArrayList<String> fieldNames = null;
+
 			boolean isclass = false;
 			boolean isInterface = false;
-			
+
 			String classname = "";
 			String interfacename = "";
-			
+
 
 			class_interface_visitor.visit(cu,null);
 
 			if(class_interface_visitor.IsClass()){
-				
+
 				isclass = true;
-				
+
 				classname = class_interface_visitor.getClassName();
 
 				UMLsource.add("class "+classname+"{");
@@ -148,13 +166,18 @@ public class Parser {
 				fieldvisitor.visit(cu,null);
 				ArrayList<String> fields = fieldvisitor.getFieldName();
 				if(fields!=null){
-					UMLsource.addAll(fieldvisitor.getFieldName());
+					// UMLsource.addAll(fieldvisitor.getFieldName());
 				}
 				ArrayList<String> Fieldtypes = fieldvisitor.getFieldTypes();
 				ClassFieldsMap.put(classname, Fieldtypes);
 
 				ArrayList<ObjCount> objCountList = fieldvisitor.getFieldObjCountList();
 				classVarMap.put(classname, objCountList);
+
+				// Inputs to method visitor
+				varVisiblity = fieldvisitor.getFieldVarVisiblity();
+				varToTypeMap = fieldvisitor.getFieldVarToTypeMap();
+				fieldNames = fieldvisitor.getFieldRawFieldNames();
 			}
 
 			else if(class_interface_visitor.IsInterface()){
@@ -164,10 +187,45 @@ public class Parser {
 				UMLsource.add("interface "+interfacename+"{");
 			}
 
-
-			MethodVisitor methodvisitor = new MethodVisitor();
+			MethodVisitor methodvisitor = new MethodVisitor(fieldNames, varVisiblity);
 			methodvisitor.visit(cu,null);
-			
+
+			// Add variables for classes
+			if(!class_interface_visitor.IsInterface()) {
+				Iterator<Entry<String, String>> it = varToTypeMap.entrySet().iterator();
+				while (it.hasNext()) {
+					HashMap.Entry<String, String> pair = (HashMap.Entry<String, String>)it.next();
+					String name = pair.getKey();
+					String type = pair.getValue();
+
+					//System.out.println(name + " " + type);
+					String collBaseType = getBaseTypeFromCollection(type);
+					//System.out.println(name + " " + collBaseType);
+					
+					// If collection, don't add entries for the class-type of collection members
+					// if the class type is one of our own
+					if (collBaseType != null && (ClassNames.contains(collBaseType) || InterfaceNames.contains(collBaseType))) {
+						continue;
+					}
+					
+					// Don't add entry if "type" is one of our own
+					if (ClassNames.contains(type) || InterfaceNames.contains(type)) {
+						continue;
+					}
+
+					if (varVisiblity.get(name).equals("private")) {
+						name = "-" + name;
+					} else if (varVisiblity.get(name).equals("protected")) {
+						name = "#" + name;
+					} else {
+						name = "+" + name;
+					}
+
+					name = name + ":" + type;
+					UMLsource.add(name);
+				}
+			}
+
 			UMLsource.addAll(methodvisitor.getMethods());
 			if(isclass){
 				ClassDependencyMap.put(classname, methodvisitor.gettypess());
@@ -251,7 +309,7 @@ public class Parser {
 			}
 
 		}
-		
+
 		for (Entry<String, ArrayList<String>> entry : InterfaceImplementsMap.entrySet()) {
 			for(String name:entry.getValue()){
 
