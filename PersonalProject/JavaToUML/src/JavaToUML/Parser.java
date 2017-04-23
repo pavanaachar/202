@@ -25,7 +25,7 @@ public class Parser {
 
 	private static ArrayList<String> UMLsource = new ArrayList<String>();
 
-	HashMap<String, ArrayList<String>> ClassFieldsMap = new HashMap<String,ArrayList<String>>();
+	//HashMap<String, ArrayList<String>> ClassFieldsMap = new HashMap<String,ArrayList<String>>();
 
 	HashMap<String, ArrayList<String>> ClassImplementsMap = new HashMap<String,ArrayList<String>>();
 
@@ -164,12 +164,13 @@ public class Parser {
 
 				FieldVisitor fieldvisitor = new FieldVisitor();
 				fieldvisitor.visit(cu,null);
-				ArrayList<String> fields = fieldvisitor.getFieldName();
-				if(fields!=null){
-					// UMLsource.addAll(fieldvisitor.getFieldName());
-				}
-				ArrayList<String> Fieldtypes = fieldvisitor.getFieldTypes();
-				ClassFieldsMap.put(classname, Fieldtypes);
+
+				//ArrayList<String> fields = fieldvisitor.getFieldName();
+				//if(fields!=null){
+				// UMLsource.addAll(fieldvisitor.getFieldName());
+				//}
+				//ArrayList<String> Fieldtypes = fieldvisitor.getFieldTypes();
+				//ClassFieldsMap.put(classname, Fieldtypes);
 
 				ArrayList<ObjCount> objCountList = fieldvisitor.getFieldObjCountList();
 				classVarMap.put(classname, objCountList);
@@ -178,20 +179,8 @@ public class Parser {
 				varVisiblity = fieldvisitor.getFieldVarVisiblity();
 				varToTypeMap = fieldvisitor.getFieldVarToTypeMap();
 				fieldNames = fieldvisitor.getFieldRawFieldNames();
-			}
 
-			else if(class_interface_visitor.IsInterface()){
-				isInterface = true;
-				interfacename = class_interface_visitor.getInterfaceName();
-				// InterfaceNames.add(interfacename);
-				UMLsource.add("interface "+interfacename+"{");
-			}
-
-			MethodVisitor methodvisitor = new MethodVisitor(fieldNames, varVisiblity);
-			methodvisitor.visit(cu,null);
-
-			// Add variables for classes
-			if(!class_interface_visitor.IsInterface()) {
+				// Generate plantuml for class fields
 				Iterator<Entry<String, String>> it = varToTypeMap.entrySet().iterator();
 				while (it.hasNext()) {
 					HashMap.Entry<String, String> pair = (HashMap.Entry<String, String>)it.next();
@@ -201,13 +190,13 @@ public class Parser {
 					//System.out.println(name + " " + type);
 					String collBaseType = getBaseTypeFromCollection(type);
 					//System.out.println(name + " " + collBaseType);
-					
+
 					// If collection, don't add entries for the class-type of collection members
 					// if the class type is one of our own
 					if (collBaseType != null && (ClassNames.contains(collBaseType) || InterfaceNames.contains(collBaseType))) {
 						continue;
 					}
-					
+
 					// Don't add entry if "type" is one of our own
 					if (ClassNames.contains(type) || InterfaceNames.contains(type)) {
 						continue;
@@ -226,9 +215,20 @@ public class Parser {
 				}
 			}
 
+			else if(class_interface_visitor.IsInterface()){
+				isInterface = true;
+				interfacename = class_interface_visitor.getInterfaceName();
+				// InterfaceNames.add(interfacename);
+				UMLsource.add("interface "+interfacename+"{");
+			}
+
+			MethodVisitor methodvisitor = new MethodVisitor(fieldNames, varVisiblity);
+			methodvisitor.visit(cu,null);
+
 			UMLsource.addAll(methodvisitor.getMethods());
+
 			if(isclass){
-				ClassDependencyMap.put(classname, methodvisitor.gettypess());
+				ClassDependencyMap.put(classname, methodvisitor.gettypes());
 			}
 
 			UMLsource.add("}");
@@ -236,7 +236,7 @@ public class Parser {
 		}
 
 
-		// Generate plantuml grammar for association between classes with cardinality
+		// Draw association between classes with cardinality
 
 
 		for (Iterator<String> iterator = classVarMap.keySet().iterator(); iterator.hasNext();) {
@@ -292,6 +292,8 @@ public class Parser {
 				UMLsource.add("class " + e.from + " " + toWeightStr + " -- " +  fromWeightStr+ " " + "class " + e.to);
 			}
 		}
+
+		// Draw dependency to interface
 		for (Entry<String, ArrayList<String>> entry : ClassDependencyMap.entrySet()) {
 			for(String name:entry.getValue()){
 				UMLsource.add("class "+entry.getKey()+"\"uses\""+".."+"interface "+name);
@@ -300,7 +302,7 @@ public class Parser {
 			}
 
 		}
-
+		// Draw inheritance relation between class and interface
 		for (Entry<String, ArrayList<String>> entry : ClassImplementsMap.entrySet()) {
 			for(String name:entry.getValue()){
 
@@ -309,7 +311,8 @@ public class Parser {
 			}
 
 		}
-
+		
+		// Draw inheritance relation between interfaces
 		for (Entry<String, ArrayList<String>> entry : InterfaceImplementsMap.entrySet()) {
 			for(String name:entry.getValue()){
 
@@ -318,6 +321,8 @@ public class Parser {
 			}
 
 		}
+		
+		// Draw inheritance relation between classes		
 		for (Entry<String, String> entry : ClassExtendsMap.entrySet()) {
 
 			UMLsource.add("class "+entry.getValue()+"<|--"+"class "+entry.getKey());

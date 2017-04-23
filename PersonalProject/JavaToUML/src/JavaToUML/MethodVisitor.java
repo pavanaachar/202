@@ -33,6 +33,10 @@ public class MethodVisitor extends VoidVisitorAdapter<Object> {
 			return ret;
 		}
 
+		if (fieldNames == null) {
+			return ret;
+		}
+		
 		if (fieldNames.contains(varName)) {
 			varVisiblity.put(varName, "public");			
 			ret = true;
@@ -53,7 +57,7 @@ public class MethodVisitor extends VoidVisitorAdapter<Object> {
 		super.visit(n, obj);
 
 		boolean getterOrSetter = false;
-		//System.out.print("\n" +n.getNameAsString()+"\n");
+		
 		String name = n.getNameAsString();
 		getterOrSetter = UpdateVarVisiblity(name);
 		
@@ -108,7 +112,7 @@ public class MethodVisitor extends VoidVisitorAdapter<Object> {
 	public ArrayList<String> getMethods(){
 		return Methods;
 	}
-	public ArrayList<String> gettypess(){
+	public ArrayList<String> gettypes(){
 		return types;
 	}
 

@@ -16,7 +16,7 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 
 	public ArrayList<String> FieldName;
 	public ArrayList<String> rawFieldNames;
-	public ArrayList<String> types;
+	//public ArrayList<String> types;
 	public ArrayList<ObjCount> objCountList;
 	public HashMap<String, String> varVisiblity;
 	public HashMap<String, String> varToTypeMap;
@@ -26,13 +26,13 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 		FieldName = new ArrayList<String>();
 		
 		rawFieldNames = new ArrayList<String>();
-		types = new ArrayList<String>();
+		//types = new ArrayList<String>();
 
 		objCountList = new ArrayList<ObjCount>();
 		varVisiblity = new HashMap<String, String>();
 		varToTypeMap = new HashMap<String, String>();
 	}
-
+/**
 	private void VisiblityMod(FieldDeclaration n, VariableDeclarator field, String name)
 	{
 		if(n.isPublic()){
@@ -49,7 +49,7 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 		}
 
 		name = name+field.toString()+":"+field.getType().toString();
-	}
+	}*/
 
 	private void SetVisiblityForVar(FieldDeclaration n, VariableDeclarator field)
 	{
@@ -86,7 +86,7 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 			NodeList<VariableDeclarator> fieldlist = n.getVariables();
 			for(VariableDeclarator field: fieldlist)
 			{	
-				String name = "";
+				//String name = "";
 				String type = field.getType().toString();
 				AddRawFieldNameToList(field.toString());
 				AddVarToTypeEntry(field);
@@ -99,15 +99,14 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 					{
 						//System.out.println(type.substring(type.indexOf("<")+1,type.indexOf(">")));
 						String Ctype = type.substring(type.indexOf("<")+1,type.indexOf(">"));
-						if(Parser.ClassNames.contains(Ctype)||Parser.InterfaceNames.contains(Ctype))
-						{
-
+						if(Parser.ClassNames.contains(Ctype)||Parser.InterfaceNames.contains(Ctype)) {
 							boolean found = false;
 							//System.out.println("HERE");
 							for (ObjCount o : objCountList) {
 								if (o.className.equals(Ctype) && o.count < ObjCount.MAX_OBJ_COUNT) {
 									o.count += ObjCount.MAX_OBJ_COUNT;
 									found = true;
+									break;
 								}
 							}
 							if (!found) {
@@ -115,23 +114,23 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 								o.count = ObjCount.MAX_OBJ_COUNT;
 								objCountList.add(o);
 							}
-						} else {
-							VisiblityMod(n, field, name);
-						}
+						}/**
+						else {
+							//VisiblityMod(n, field, name);
+						}*/
 					}
 				}
 
-				//TO-DO check if getter or setter methods exist
-
+				/**
 				else if(Parser.ClassNames.contains(type)==false && Parser.InterfaceNames.contains(type)==false)
 				{
-					VisiblityMod(n, field, name);
+					//VisiblityMod(n, field, name);
 
-					FieldName.add(name);
+					//FieldName.add(name);
 					//System.out.println("field names : "+FieldName);
-				}
+				}*/
 
-				else
+				else if(Parser.ClassNames.contains(type) || Parser.InterfaceNames.contains(type))
 				{
 					boolean found = false;
 					for (Iterator<ObjCount> iterator = objCountList.iterator(); iterator.hasNext();) {
@@ -147,7 +146,7 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 						objCountList.add(o);
 					}
 
-					types.add(type);
+					//types.add(type);
 					//System.out.println("types : "+types);
 				}
 			}
@@ -161,10 +160,10 @@ public class FieldVisitor extends VoidVisitorAdapter<Object>  {
 	public ArrayList<String> getFieldRawFieldNames(){
 		return rawFieldNames;
 	}
-	
+/**	
 	public ArrayList<String> getFieldTypes(){
 		return types;
-	}
+	}*/
 
 	// S
 	public ArrayList<ObjCount> getFieldObjCountList(){
