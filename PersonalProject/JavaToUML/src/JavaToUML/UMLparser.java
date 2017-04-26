@@ -5,44 +5,40 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class UMLparser {
-
 	private static ArrayList<File> JavaFiles = new ArrayList<File>();
-
 	private static ArrayList<String> PlantUMLsource = new ArrayList<String>();	
 
 	public static void main(String[] args) {
-		String inputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\temp";
+		//String inputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\temp";
+		//String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\output.java";
+		if(args.length<2){
+			System.out.println("Invalid length of arguments");
+		} else {
 
-		String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\output.java";
+			String inputpath = args[0];
+			String outputpath = args[1]+".txt";
 
-		File inputFile = new File(inputpath);
+			File inputFile = new File(inputpath);
+			if(inputFile.isDirectory()) {
+				DirExplorer dir_explorer = new DirExplorer(inputFile);
+				JavaFiles = dir_explorer.listFiles();
+			} else {
+				JavaFiles.add(inputFile);
+			}
 
-		if(inputFile.isDirectory()){
-			DirExplorer dir_explorer = new DirExplorer(inputFile);
+			Parser javaparser = new Parser(JavaFiles);
+			try {
+				PlantUMLsource = javaparser.parser();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-			JavaFiles = dir_explorer.listFiles();
+			FileWriter.writer(outputpath,PlantUMLsource);
+
+			System.out.println("Generating class diagram with PlantUml. . .");
+
+			PlantUML uml = new PlantUML(outputpath);
+			uml.GenerateUML();
 		}
-		else 
-		{
-			JavaFiles.add(inputFile);
-		}
-
-		Parser javaparser = new Parser(JavaFiles);
-
-		try {
-
-			PlantUMLsource = javaparser.parser();
-		} 
-		catch (IOException e) {
-
-			e.printStackTrace();
-		}
-
-		FileWriter.writer(outputpath,PlantUMLsource);
-
-		PlantUML uml = new PlantUML(outputpath);
-		uml.GenerateUML();
-
-
 	}
 }
