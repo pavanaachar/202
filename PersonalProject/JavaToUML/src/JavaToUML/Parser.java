@@ -4,10 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map.Entry;
 
 import com.github.javaparser.JavaParser;
@@ -17,15 +15,11 @@ public class Parser {
 
 	private static ArrayList<File> JavaFiles = new ArrayList<File>();
 
-	ArrayList<CompilationUnit> compilationunits = new ArrayList<CompilationUnit>();
+	public static ArrayList<String> classNames = new ArrayList<String>();
 
-	public static ArrayList<String> ClassNames = new ArrayList<String>();
-
-	public static ArrayList<String> InterfaceNames = new ArrayList<String>();
+	public static ArrayList<String> interfaceNames = new ArrayList<String>();
 
 	private static ArrayList<String> UMLsource = new ArrayList<String>();
-
-	//HashMap<String, ArrayList<String>> ClassFieldsMap = new HashMap<String,ArrayList<String>>();
 
 	HashMap<String, ArrayList<String>> ClassImplementsMap = new HashMap<String,ArrayList<String>>();
 
@@ -35,312 +29,339 @@ public class Parser {
 
 	HashMap<String, ArrayList<String>> ClassDependencyMap = new HashMap<String,ArrayList<String>>();
 
-	// Track edges from Class to Class or interface
-	class Edge {
-		public String from;
-		public String to;
-		public int fromWeight;
-		public int toWeight;
+	// ArrayList<CompilationUnit> CompilationUnits = new ArrayList<CompilationUnit>();
 
-
-		Edge(String from, String to) {
-			this.from = from;
-			this.to = to;
-			this.fromWeight = -1;
-			this.toWeight = -1;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			Edge e = (Edge)obj;
-
-			if (obj == null) {
-				return false;
-			}
-
-			if ((this.from.equals(e.from) && 
-					this.to.equals(e.to)) ||
-					(this.from.equals(e.to) &&
-							this.to.equals(e.from))) {
-				return true;
-			}
-			return false;
-		}
+	class MyCompilationUnit {
+		CompilationUnit cu;
+		String name;
+		String type; // "class" or "interface"
 	}
+
+	ArrayList<MyCompilationUnit> myCompilationUnits = new ArrayList<MyCompilationUnit>();
 
 	public Parser(ArrayList<File> files){
 		JavaFiles = files;
 	}
 
-	private String getBaseTypeFromCollection(String type) {
-		List<String> collections = new ArrayList<String>(Arrays.asList("Collection", "ArrayList", "List", "Hashmap", "Set"));
-
-		if(type.contains("<"))
-		{
-			if(collections.contains(type.substring(0, type.indexOf("<"))))
-			{
-				return type.substring(type.indexOf("<") + 1, type.indexOf(">"));
+	private int GetIndexOfClassOrIfaceName(String key) {
+		for (int i = 0; i < myCompilationUnits.size(); i++) {
+			if (myCompilationUnits.get(i).name.equals(key)) {
+				return i;
 			}
 		}
-		return null;
+		return -1;
 	}
 
-	public ArrayList<String> parser() throws IOException {		
+	private String[] GetNClassRefCounts(String name, int N, ArrayList<ClassRefCount> cRefs) {
+		String[] counts = new String[N];
+		int idx = 0;
 
+		for (ClassRefCount cRef : cRefs) {
+			if (cRef.name.equals(name)) {
+				if (cRef.count >= ClassRefCount.MAX_COUNT) {
+					counts[idx] = "\"*\"";
+				} else {
+					counts[idx] = "";
+				}
+				idx++;
+			}
+		}
+		return counts;
+	}
 
-		HashMap<String, ArrayList<ObjCount>> classVarMap = new HashMap<String, ArrayList<ObjCount>>();
+	private int max(int i, int j) {
+		return i > j? i : j;
+	}
 
-		ArrayList<Edge> edges = new ArrayList<Edge>();
+	//
+	class ClassRefCount {
+		public static final int MAX_COUNT = 20000;
+		String name;
+		int count;
+	}
 
+	public ArrayList<String> parser() throws IOException {
+		HashMap<String, ArrayList<FieldAttr>> classFieldMap = new HashMap<String, ArrayList<FieldAttr>>();
+		HashMap<String, ArrayList<ClassRefCount>> classRefCountMap = new HashMap<String, ArrayList<ClassRefCount>>();
 
 		UMLsource.add("@startuml");
 
-		for(int i=0; i<JavaFiles.size();i++){
+		for (int i = 0; i < JavaFiles.size(); i++) {
 			File file = new File(JavaFiles.get(i).getAbsolutePath());
-			FileInputStream file_in = null;
-			CompilationUnit compile_unit = null;
-			try{
-				file_in = new FileInputStream(file);
-				compile_unit = JavaParser.parse(file_in);				
-			}
-			catch(Exception e){
+			FileInputStream fileIn = null;
+			MyCompilationUnit myCompilationUnit = new MyCompilationUnit();
+			CompilationUnit compileUnit = null;
+
+			try {
+				fileIn = new FileInputStream(file);
+				compileUnit = JavaParser.parse(fileIn);				
+				myCompilationUnit.cu = compileUnit;  
+			} catch(Exception e) {
 				e.printStackTrace();
-			}
-			finally{
-				file_in.close();
-			}
-
-			compilationunits.add(compile_unit);
-
-			ClassOrInterfaceVisitor class_interface_visitor = new ClassOrInterfaceVisitor();
-
-			class_interface_visitor.visit(compile_unit,null);
-
-			if(class_interface_visitor.IsClass()){
-				String classname = class_interface_visitor.getClassName();
-				ClassNames.add(classname);
-
+				System.exit(1);
+			} finally {
+				fileIn.close();
 			}
 
-			else if(class_interface_visitor.IsInterface()){
-				String interfacename = class_interface_visitor.getInterfaceName();
-				InterfaceNames.add(interfacename);
+			ClassOrInterfaceVisitor classOrInterfaceVisitor = new ClassOrInterfaceVisitor();
+			classOrInterfaceVisitor.visit(compileUnit, null);
 
+			if (classOrInterfaceVisitor.IsClass()) {
+				String className = classOrInterfaceVisitor.getClassName();
+				classNames.add(className);
+				myCompilationUnit.type = "class";
+				myCompilationUnit.name = className;
+
+			} else if (classOrInterfaceVisitor.IsInterface()) {
+				String interfaceName = classOrInterfaceVisitor.getInterfaceName();
+				interfaceNames.add(interfaceName);
+				myCompilationUnit.type = "interface";
+				myCompilationUnit.name = interfaceName;
 			}
+			myCompilationUnits.add(myCompilationUnit);
+		}		
 
-
-
-		}
 		ClassImplementsMap = ClassOrInterfaceVisitor.getClassImplementsMap();
-
 		ClassExtendsMap = ClassOrInterfaceVisitor.getClassExtendsMap();
+		InterfaceImplementsMap = ClassOrInterfaceVisitor.getInterfaceImplementsMap();		
 
-		InterfaceImplementsMap = ClassOrInterfaceVisitor.getInterfaceImplementsMap();
+		for(int i = 0; i < myCompilationUnits.size(); i++) {
+			MyCompilationUnit myCu = myCompilationUnits.get(i);
+			CompilationUnit cu = myCu.cu;
+			String name = myCu.name;
+			String type = myCu.type;
 
+			if (type.equals("class")) {
+				UMLsource.add("class "+ name + "{");
+				FieldVisitor fieldVisitor = new FieldVisitor();
+				fieldVisitor.visit(cu, null);
 
-		for(int i =0;i<compilationunits.size();i++){
-			CompilationUnit cu = compilationunits.get(i);
-			ClassOrInterfaceVisitor class_interface_visitor = new ClassOrInterfaceVisitor();
-			HashMap<String,String> varVisiblity = null;
-			HashMap<String,String> varToTypeMap = null;
-			ArrayList<String> fieldNames = null;
+				ArrayList<FieldAttr> fAttrs = fieldVisitor.getFieldAttrs();
+				classFieldMap.put(name, fAttrs);
 
-			boolean isclass = false;
-			boolean isInterface = false;
+				MethodVisitor methodVisitor = new MethodVisitor(fAttrs);
+				methodVisitor.visit(cu, null);
 
-			String classname = "";
-			String interfacename = "";
+				ArrayList<String> types = methodVisitor.gettypes();			
 
+				ConstructorVisitor constructorVisitor = new ConstructorVisitor();
+				constructorVisitor.visit(cu, null);
 
-			class_interface_visitor.visit(cu,null);
-
-			if(class_interface_visitor.IsClass()){
-
-				isclass = true;
-
-				classname = class_interface_visitor.getClassName();
-
-				UMLsource.add("class "+classname+"{");
-
-				FieldVisitor fieldvisitor = new FieldVisitor();
-				fieldvisitor.visit(cu,null);
-
-				//ArrayList<String> fields = fieldvisitor.getFieldName();
-				//if(fields!=null){
-				// UMLsource.addAll(fieldvisitor.getFieldName());
-				//}
-				//ArrayList<String> Fieldtypes = fieldvisitor.getFieldTypes();
-				//ClassFieldsMap.put(classname, Fieldtypes);
-
-				ArrayList<ObjCount> objCountList = fieldvisitor.getFieldObjCountList();
-				classVarMap.put(classname, objCountList);
-
-				// Inputs to method visitor
-				varVisiblity = fieldvisitor.getFieldVarVisiblity();
-				varToTypeMap = fieldvisitor.getFieldVarToTypeMap();
-				fieldNames = fieldvisitor.getFieldRawFieldNames();
-
-				// Generate plantuml for class fields
-				Iterator<Entry<String, String>> it = varToTypeMap.entrySet().iterator();
-				while (it.hasNext()) {
-					HashMap.Entry<String, String> pair = (HashMap.Entry<String, String>)it.next();
-					String name = pair.getKey();
-					String type = pair.getValue();
-
-					//System.out.println(name + " " + type);
-					String collBaseType = getBaseTypeFromCollection(type);
-					//System.out.println(name + " " + collBaseType);
-
-					// If collection, don't add entries for the class-type of collection members
-					// if the class type is one of our own
-					if (collBaseType != null && (ClassNames.contains(collBaseType) || InterfaceNames.contains(collBaseType))) {
-						continue;
+				for(String t: constructorVisitor.gettypes()){
+					if(!types.contains(types)){
+						types.add(t);
 					}
+				}
 
-					// Don't add entry if "type" is one of our own
-					if (ClassNames.contains(type) || InterfaceNames.contains(type)) {
-						continue;
+				ClassDependencyMap.put(name, types);
+
+
+
+				// Add fields
+				for (FieldAttr fAttr : fAttrs) {
+					boolean proceed = true;
+					if (fAttr.typeClass.contains("ArrayType")) {
+						if(classNames.contains(fAttr.elementType)||interfaceNames.contains(fAttr.elementType)){
+							proceed = false;
+							break;
+						}	
 					}
+					if (!proceed) continue;
 
-					if (varVisiblity.get(name).equals("private")) {
-						name = "-" + name;
-					} else if (varVisiblity.get(name).equals("protected")) {
-						name = "#" + name;
+					if (fAttr.typeClass.contains("ClassOrInterfaceType")) {
+						if (fAttr.argTypes != null) {
+							for (FieldAttr f : fAttr.argTypes) {
+								if(classNames.contains(f.type)||interfaceNames.contains(f.type)){
+									proceed = false;
+									break;
+								}								
+							}
+						} else {
+							if(classNames.contains(fAttr.type)||interfaceNames.contains(fAttr.type)){
+								proceed = false;
+								break;
+							}	
+						}
+					}
+					if (!proceed) continue;
+
+					String varName = fAttr.name;
+
+					if (fAttr.visiblity.equals("private")) {
+						varName = "-" + varName;
+					} else if (fAttr.visiblity.equals("protected")) {
+						varName = "#" + varName;
 					} else {
-						name = "+" + name;
+						varName = "+" + varName;
 					}
+					varName = varName + ":" + fAttr.fullType;
+					UMLsource.add(varName);
+				}
 
-					name = name + ":" + type;
-					UMLsource.add(name);
+				// Add constructor
+				String constr = constructorVisitor.getConstructor();
+				if (constr != null) {
+					UMLsource.add(constr);
+				}
+
+				// Add methods
+				UMLsource.addAll(methodVisitor.getMethods());
+
+			} else if (type.equals("interface")) {
+				UMLsource.add("interface "+ name +"{");
+				MethodVisitor methodvisitor = new MethodVisitor(null);
+				methodvisitor.visit(cu, null);
+
+				// Add methods
+				UMLsource.addAll(methodvisitor.getMethods());
+
+			} else {
+				// Type should only be "class" or "interface"
+				assert(false);
+			}
+			UMLsource.add("}");
+		}
+
+		// Draw Association lines
+		for (Iterator<String> iterator = classFieldMap.keySet().iterator(); iterator.hasNext();) {
+			String key = iterator.next();
+			ArrayList<FieldAttr> fAttrs = classFieldMap.get(key);
+
+			for (FieldAttr fAttr : fAttrs) {
+				if (fAttr.typeClass.contains("ClassOrInterfaceType")) {
+					if (fAttr.argTypes != null) {
+
+						for (FieldAttr f : fAttr.argTypes) {
+							if (classNames.contains(f.type) || interfaceNames.contains(f.type)) {
+								ClassRefCount cRef = new ClassRefCount();
+								cRef.name = new String(f.type);
+								cRef.count = ClassRefCount.MAX_COUNT;
+
+								ArrayList<ClassRefCount> list = classRefCountMap.get(key);
+								if (list == null) {
+									classRefCountMap.put(key, new ArrayList<ClassRefCount>());
+								}
+								list = classRefCountMap.get(key);
+								list.add(cRef);
+							}
+						}
+					} else {
+						if (classNames.contains(fAttr.type) || interfaceNames.contains(fAttr.type)) {
+							ClassRefCount cRef = new ClassRefCount();
+							cRef.name = new String(fAttr.type);
+							cRef.count = 1;
+
+							ArrayList<ClassRefCount> list = classRefCountMap.get(key);
+							if (list == null) {
+								classRefCountMap.put(key, new ArrayList<ClassRefCount>());
+							}
+							list = classRefCountMap.get(key);
+							list.add(cRef);
+						}
+					}
 				}
 			}
-
-			else if(class_interface_visitor.IsInterface()){
-				isInterface = true;
-				interfacename = class_interface_visitor.getInterfaceName();
-				// InterfaceNames.add(interfacename);
-				UMLsource.add("interface "+interfacename+"{");
-			}
-
-			MethodVisitor methodvisitor = new MethodVisitor(fieldNames, varVisiblity);
-			methodvisitor.visit(cu,null);
-
-			UMLsource.addAll(methodvisitor.getMethods());
-
-			if(isclass){
-				ClassDependencyMap.put(classname, methodvisitor.gettypes());
-			}
-
-			UMLsource.add("}");
-
 		}
-
 
 		// Draw association between classes with cardinality
+		int[][] edgeCountMatrix = new int[myCompilationUnits.size()][myCompilationUnits.size()];
+		for (int i = 0; i < myCompilationUnits.size(); i++) {
+			for (int j = 0; j < myCompilationUnits.size(); j++) {
+				edgeCountMatrix[i][j] = 0;
+			}
+		}
 
-
-		for (Iterator<String> iterator = classVarMap.keySet().iterator(); iterator.hasNext();) {
+		for (Iterator<String> iterator = classRefCountMap.keySet().iterator(); iterator.hasNext();) {
 			String key = iterator.next();
-			//System.out.println("Class: " + key);
+			int idx = GetIndexOfClassOrIfaceName(key);
+			assert(idx != -1);
 
-			for (Iterator<ObjCount> iterator2 = classVarMap.get(key).iterator(); iterator2.hasNext();) {
-				ObjCount o = iterator2.next();
-				//System.out.println(" " + o.className);
+			for (Iterator<ClassRefCount> iterator2 = classRefCountMap.get(key).iterator(); iterator2.hasNext();) {
+				ClassRefCount c = iterator2.next();
+				int idx1 = GetIndexOfClassOrIfaceName(c.name);
+				assert(idx1 != -1);
 
-				Edge tempEdge = new Edge(key, o.className);
-				//System.out.println("Adding Edge");
-				if (!edges.contains(tempEdge)) {
-					tempEdge.fromWeight = o.count;
-					edges.add(tempEdge);
-				} else {
-					Edge e = edges.get(edges.indexOf(tempEdge));
-					if (e.from.equals(key)) {
-						// We should never encounter the same classX -> classY mapping twice
-						assert(false);
-					} else {
-						assert(e.to.equals(key));
-						assert(e.fromWeight != -1 && e.toWeight == -1);
-						e.toWeight = o.count;
-					}
+				edgeCountMatrix[idx][idx1]++;
+			}
+		}
+
+		// Draw association between classes with cardinality
+		for (int i = 0; i < myCompilationUnits.size(); i++) {
+			for (int j = 0; j < myCompilationUnits.size(); j++) {
+				int ijCount = edgeCountMatrix[i][j];
+				int jiCount = edgeCountMatrix[j][i];
+				int m = max(ijCount, jiCount);
+
+				String iName = myCompilationUnits.get(i).name;
+				String jName = myCompilationUnits.get(j).name;
+
+				String ij[] = null;
+				String ji[] = null;
+
+				if (ijCount > 0) {
+					ij = GetNClassRefCounts(jName, ijCount, classRefCountMap.get(iName));
 				}
+				if (jiCount > 0) {
+					ji = GetNClassRefCounts(iName, jiCount, classRefCountMap.get(jName));
+				}
+
+				for (int k = 0; k < m; k++) {
+					String iWeight = null;
+					String jWeight = null;
+
+					if (ijCount > 0) {
+						iWeight = ij[k];
+						ijCount--;
+						edgeCountMatrix[i][j]--;
+					} else {
+						iWeight = "";
+					}
+
+					if (jiCount > 0) {
+						jWeight = ji[k];
+						jiCount--;
+						edgeCountMatrix[j][i]--;
+					} else {
+						jWeight = "";
+					}
+
+					UMLsource.add(iName + " " + jWeight + "--" + iWeight + " " + jName);
+				}
+				assert(ijCount == 0 && jiCount == 0 && m == 0);
+				assert(edgeCountMatrix[i][j] == 0 && edgeCountMatrix[j][i] == 0);
 			}
-		}
+		}		
 
-		for (Edge e : edges) {
-			String fromWeightStr = null;
-			String toWeightStr = null;
 
-			if (e.fromWeight >= ObjCount.MAX_OBJ_COUNT) {
-				fromWeightStr = "\"*\"";
-			} else if (e.fromWeight > -1) {
-				fromWeightStr = "\"" + Integer.toString(e.fromWeight) + "\"";
-			} else  {
-				fromWeightStr = "";
-			}
 
-			if (e.toWeight >= ObjCount.MAX_OBJ_COUNT) {
-				toWeightStr = "\"*\"";
-			} else if (e.toWeight > -1) {
-				toWeightStr = "\"" + Integer.toString(e.toWeight) + "\"";
-			} else {
-				toWeightStr = "";
-			}
-
-			if (InterfaceNames.contains(e.to)) {
-				UMLsource.add("class " + e.from + " " + toWeightStr + " -- " +  fromWeightStr + " " + "interface " + e.to);
-			} else {
-				UMLsource.add("class " + e.from + " " + toWeightStr + " -- " +  fromWeightStr+ " " + "class " + e.to);
-			}
-		}
-
-		// Draw dependency to interface
-		for (Entry<String, ArrayList<String>> entry : ClassDependencyMap.entrySet()) {
-			for(String name:entry.getValue()){
-				UMLsource.add("class "+entry.getKey()+"\"uses\""+".."+"interface "+name);
-				//UMLsource.add(+);
-
-			}
-
-		}
 		// Draw inheritance relation between class and interface
 		for (Entry<String, ArrayList<String>> entry : ClassImplementsMap.entrySet()) {
 			for(String name:entry.getValue()){
-
-				UMLsource.add("interface "+name+"<|.."+"class "+entry.getKey());
-
+				UMLsource.add(name + " <|.. " + entry.getKey());
 			}
-
 		}
-		
+
 		// Draw inheritance relation between interfaces
 		for (Entry<String, ArrayList<String>> entry : InterfaceImplementsMap.entrySet()) {
 			for(String name:entry.getValue()){
-
-				UMLsource.add("interface "+name+"<|.."+"interface "+entry.getKey());
-
+				UMLsource.add(name + " <|.. " + entry.getKey());
 			}
-
 		}
-		
+
 		// Draw inheritance relation between classes		
 		for (Entry<String, String> entry : ClassExtendsMap.entrySet()) {
-
-			UMLsource.add("class "+entry.getValue()+"<|--"+"class "+entry.getKey());
+			UMLsource.add(entry.getValue() + " <|-- " + entry.getKey());
+		}
+		
+		// Draw dependency to interface
+		for (Entry<String, ArrayList<String>> entry : ClassDependencyMap.entrySet()) {
+			for(String name : entry.getValue()){
+				UMLsource.add(entry.getKey() + "..>" + name);
+				//UMLsource.add(+);
+			}
 		}
 
 		UMLsource.add("@enduml");
-
-
 		return UMLsource;
-
 	}
-
 }
-
-
-
-
-
-
-
-
