@@ -1,0 +1,14 @@
+@startuml
+class ClassA{
++message:String
+-bark:String
+#foo:String
+#bar:String
+-test:String
++testMethod():void
+}
+class ClassB{
+-hello:String
+}
+ClassA <|-- ClassB
+@enduml
