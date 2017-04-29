@@ -1,0 +1,16 @@
+@startuml
+class A{
+-x:int
+-s:String
+-y:int[]
+}
+class B{
+}
+class C{
+}
+class D{
+}
+A --"*" B
+A -- C
+A --"*" D
+@enduml
