@@ -49,7 +49,6 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 
 
 		if(!n.getImplementedTypes().isEmpty()){
-			System.out.println(n.getImplementedTypes());
 			NodeList<ClassOrInterfaceType> implementedTypes = n.getImplementedTypes();
 			for(ClassOrInterfaceType types: implementedTypes){
 				InterfaceTypes.add(types.getNameAsString());
@@ -60,50 +59,42 @@ public class ClassOrInterfaceVisitor extends VoidVisitorAdapter<Object> {
 			else
 			{
 				ClassImplementsMap.put(ClassName, InterfaceTypes);
-				
 			}
-				System.out.println(ClassImplementsMap);
-
-			}
-
-			//System.out.println(n.getExtendedTypes().isEmpty());
-
-			if(!n.getExtendedTypes().isEmpty()){
-				//System.out.println(n.getExtendedTypes().get(0).getNameAsString());
-				ClassExtendsMap.put(ClassName, n.getExtendedTypes().get(0).getNameAsString());
-
-			}
-
-
 		}
 
-		public String getClassName(){
-			return this.ClassName;
+		if(!n.getExtendedTypes().isEmpty()){
+			//System.out.println(n.getExtendedTypes().get(0).getNameAsString());
+			ClassExtendsMap.put(ClassName, n.getExtendedTypes().get(0).getNameAsString());
 		}
-
-		public String getInterfaceName(){
-			return this.InterfaceName;
-		}
-
-		public boolean IsClass(){
-			return this.IsClass;
-		}
-
-		public boolean IsInterface(){
-			return this.IsInterface;
-		}
-
-		public static HashMap<String, ArrayList<String>> getClassImplementsMap(){
-			return ClassImplementsMap;
-		}
-		public static HashMap<String, ArrayList<String>> getInterfaceImplementsMap(){
-			return InterfaceImplementsMap;
-		}
-
-		public static HashMap<String, String> getClassExtendsMap(){
-			return ClassExtendsMap;
-		}
-
-
 	}
+
+	public String getClassName(){
+		return this.ClassName;
+	}
+
+	public String getInterfaceName(){
+		return this.InterfaceName;
+	}
+
+	public boolean IsClass(){
+		return this.IsClass;
+	}
+
+	public boolean IsInterface(){
+		return this.IsInterface;
+	}
+
+	public static HashMap<String, ArrayList<String>> getClassImplementsMap(){
+		return ClassImplementsMap;
+	}
+	public static HashMap<String, ArrayList<String>> getInterfaceImplementsMap(){
+		return InterfaceImplementsMap;
+	}
+
+	public static HashMap<String, String> getClassExtendsMap(){
+		return ClassExtendsMap;
+	}
+
+
+}
 
