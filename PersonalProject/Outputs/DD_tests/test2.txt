@@ -1,0 +1,25 @@
+@startuml
+interface A1{
+}
+interface A2{
+}
+class B1{
+}
+class B2{
+}
+class C1{
++test(a1:A1):void
+}
+class C2{
++test(a2:A2):void
+}
+class P{
+}
+A1 <|.. B2
+A2 <|.. B2
+A1 <|.. B1
+P <|-- B2
+P <|-- B1
+C1..>A1
+C2..>A2
+@enduml
