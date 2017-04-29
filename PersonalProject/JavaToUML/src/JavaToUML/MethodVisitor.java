@@ -2,29 +2,30 @@ package JavaToUML;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
-
 public class MethodVisitor extends VoidVisitorAdapter<Object> {
-	
+	public ArrayList<FieldAttr> fieldAttrs;
 	public ArrayList<String> Methods = new ArrayList<String>(); 
 	public ArrayList<String> types = new ArrayList<String>(); 
-	private HashMap<String, String> varVisiblity;
-	private ArrayList<String> fieldNames;
-	
-	MethodVisitor(ArrayList<String> fieldNames, HashMap<String, String> varVisiblity) {
-		this.varVisiblity = varVisiblity;
-		this.fieldNames = fieldNames;
+
+	MethodVisitor(ArrayList<FieldAttr> fieldAttrs) {
+		this.fieldAttrs = fieldAttrs;
 	}
-	
-	private boolean UpdateVarVisiblity(String name) {
+
+	private boolean UpdateVarVisiblity(EnumSet<Modifier> mod, String name) {
 		String varName;
 		boolean ret = false;
-		
+
+		for (Modifier m : mod) {
+			if (m.toString().contains("PRIVATE") || m.toString().contains("PROTECTED")) {
+				return false;
+			}
+		}
+
 		if (name.startsWith("get")) {
 			varName = name.substring(name.indexOf("get") + 3 , name.length());
 		} else if (name.startsWith("set")) {
@@ -33,87 +34,91 @@ public class MethodVisitor extends VoidVisitorAdapter<Object> {
 			return ret;
 		}
 
-		if (fieldNames == null) {
+		// Interfaces have no fields
+		if (fieldAttrs == null) {
 			return ret;
 		}
-		
-		if (fieldNames.contains(varName)) {
-			varVisiblity.put(varName, "public");			
-			ret = true;
-		} else {
-			String temp = varName.substring(0, 1).toLowerCase() + varName.substring(1);
-			if (fieldNames.contains(temp)) {
-				varVisiblity.put(temp, "public");
+
+		for (FieldAttr fAttr : fieldAttrs) {
+			if (fAttr.name.equals(varName)) {
+				fAttr.visiblity = "public";
 				ret = true;
+				break;
 			}
 		}
-		
-		return ret;
+		if (ret != true) {
+			for (FieldAttr fAttr : fieldAttrs) {
+				if (fAttr.name.equals(varName.substring(0, 1).toLowerCase() + varName.substring(1))) {
+					fAttr.visiblity = "public";
+					ret = true;
+					break;
+				}
+			}
+		}
+
+		return ret;		
 	}
-	
+
 	@Override
 	public void visit(MethodDeclaration n, Object obj) {
-		
 		super.visit(n, obj);
 
 		boolean getterOrSetter = false;
-		
+		boolean isPublic = false;
+
 		String name = n.getNameAsString();
-		getterOrSetter = UpdateVarVisiblity(name);
-		
+
 		EnumSet<Modifier> mod = n.getModifiers();
-		
+		getterOrSetter = UpdateVarVisiblity(mod, name);
+
 		String modifier = "";
-		switch(mod.toString()){
-		case "[PRIVATE]": modifier+="-";
-		break;						
-		case "[PROTECTED]": modifier+="#";
-		break;
-		case "[PACKAGE]": modifier+="~";
-		break;
-		default: modifier += "+";
+		switch (mod.toString()) {
+			case "[PRIVATE]": modifier+="-";
+			break;						
+			
+			case "[PROTECTED]": modifier+="#";
+			break;
+			
+			case "[PACKAGE]": modifier+="~";
+			break;
+			
+			default: modifier += "+"; isPublic = true;
 		}
 		name = modifier + name;
-		
+
 		int params = n.getParameters().size();
-		if(params==0){
-		name = name + "()";
-		}
-		else
-		{
+		if (params==0) {
+			name = name + "()";
+		} else {
 			name += "(";
-			for(int i= 0;i<params;i++)
-			{
+			for(int i= 0;i<params;i++) {
 				name += n.getParameters().get(i).getNameAsString() + ":";
 				name += n.getParameters().get(i).getType();
 				String param_type = n.getParameters().get(i).getType().toString();
-				if(Parser.InterfaceNames.contains(param_type)){
-					if(!types.contains(param_type)){
+				if(Parser.interfaceNames.contains(param_type)) {
+					if(!types.contains(param_type)) {
 						types.add(param_type);
 					}
-					
 				}
-				if(i<params-1){
-					name+=",";
+				if(i<params-1) {
+					name+=", ";
 				}
-				
 			}
 			name = name + ")";
-			
 		}
-		name += ":"+ n.getType();
 		
-		if (!getterOrSetter) {
+		name += ":"+ n.getType();
+
+		if (!getterOrSetter && isPublic) {
 			Methods.add(name);
 		}
-
 	}
 
 	public ArrayList<String> getMethods(){
 		return Methods;
 	}
+
 	public ArrayList<String> gettypes(){
 		return types;
 	}
-
 }
