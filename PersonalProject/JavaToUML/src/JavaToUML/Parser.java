@@ -189,10 +189,10 @@ public class Parser {
 
 					if (fAttr.visiblity.equals("private")) {
 						varName = "-" + varName;
-					} else if (fAttr.visiblity.equals("protected")) {
-						varName = "#" + varName;
-					} else {
+					} else if (fAttr.visiblity.equals("public")) {
 						varName = "+" + varName;
+					} else {
+						continue;
 					}
 					varName = varName + ":" + fAttr.fullType;
 					UMLsource.add(varName);
@@ -221,6 +221,15 @@ public class Parser {
 			}
 			UMLsource.add("}");
 		}
+
+		// Draw inheritance relation between class and interface
+		for (Entry<String, ArrayList<String>> entry : ClassImplementsMap.entrySet()) {
+			for(String name:entry.getValue()){
+				UMLsource.add(name + " <|.. " + entry.getKey());
+			}
+		}
+
+
 
 		// Draw Association lines
 		for (Iterator<String> iterator = classFieldMap.keySet().iterator(); iterator.hasNext();) {
@@ -331,20 +340,11 @@ public class Parser {
 				assert(edgeCountMatrix[i][j] == 0 && edgeCountMatrix[j][i] == 0);
 			}
 		}		
-
-
-
-		// Draw inheritance relation between class and interface
-		for (Entry<String, ArrayList<String>> entry : ClassImplementsMap.entrySet()) {
-			for(String name:entry.getValue()){
-				UMLsource.add(name + " <|.. " + entry.getKey());
-			}
-		}
-
 		// Draw inheritance relation between interfaces
 		for (Entry<String, ArrayList<String>> entry : InterfaceImplementsMap.entrySet()) {
 			for(String name:entry.getValue()){
 				UMLsource.add(name + " <|.. " + entry.getKey());
+				//UMLsource.add(entry.getKey() + " ..|> " + name);
 			}
 		}
 
@@ -352,14 +352,18 @@ public class Parser {
 		for (Entry<String, String> entry : ClassExtendsMap.entrySet()) {
 			UMLsource.add(entry.getValue() + " <|-- " + entry.getKey());
 		}
-		
+
 		// Draw dependency to interface
 		for (Entry<String, ArrayList<String>> entry : ClassDependencyMap.entrySet()) {
 			for(String name : entry.getValue()){
-				UMLsource.add(entry.getKey() + "..>" + name);
+				//UMLsource.add(entry.getKey() + "..>" + name);
+				UMLsource.add(name + "<.." + entry.getKey());
 				//UMLsource.add(+);
 			}
 		}
+
+
+
 
 		UMLsource.add("@enduml");
 		return UMLsource;
