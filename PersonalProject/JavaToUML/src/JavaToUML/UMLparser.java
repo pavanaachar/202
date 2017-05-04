@@ -9,8 +9,8 @@ public class UMLparser {
 	private static ArrayList<String> PlantUMLsource = new ArrayList<String>();	
 
 	public static void main(String[] args) {
-		//String inputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\temp";
-		//String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\output.java";
+		//String inputpath = "C:\\Users\\Pavana\\Desktop\\202-DEMO-DAY\\test4";
+		//String outputpath = "C:\\Users\\Pavana\\Desktop\\git\\202\\PersonalProject\\Outputs\\final.txt";
 		if(args.length<2){
 			System.out.println("Invalid length of arguments");
 		} else {

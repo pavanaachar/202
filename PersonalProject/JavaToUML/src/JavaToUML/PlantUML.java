@@ -21,7 +21,7 @@ public void GenerateUML(){
 		SourceFileReader sourcereader = new SourceFileReader(UMLsource);
 		List<GeneratedImage> images = sourcereader.getGeneratedImages();
 		File ClassDiagram = images.get(0).getPngFile();		
-		System.out.print(ClassDiagram.getAbsolutePath());
+		System.out.print("Class diagram generated at: "+ClassDiagram.getAbsolutePath());
 	}
 	catch(IOException e){
 		e.printStackTrace();
